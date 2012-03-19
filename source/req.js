@@ -21,24 +21,28 @@
 			}
 		});
 
-*/
 
+
+Load files
+
+multiple files can be common to different call
+
+on every file load iterate through a list of requests for every requests
+check if the resources are loaded, if they are run the callback and remove the requests
+
+*/
 // start req object, do not overwrite as would reset currently loaded req management
 var req = window.req || (function(doc) {
 
 	// private
 	var 
-	
-		// settings
-		settings = {
-			path: './js'
-		},
 		
-		// store loaded resources
-		loaded = [],
+		// callback to execute in order
+		executeStack = [],
 		
-		// store resources currently loading
-		loading = [],
+		// track loaded and loading resources
+		loaded = {},
+		loading = {},
 		
 		// store objects created from module resources (externals are just loaded in the page)
 		objects = {},
@@ -46,26 +50,11 @@ var req = window.req || (function(doc) {
 		// store instance of object initialized
 		instances = {},
 		
-		// helper function to interate over arrays
+		// helper function to iterate over arrays
 		each = function(arr, fn) {
 			var len = arr.length, i = 0;
-			for (; i < len; i++) fn.apply(null, [i, arr[i], arr]);
+			for (; i < len; i++) fn.apply(null, [arr[i]]);
 		},
-		
-		// type helper functions (dynamically created to simplify supporting more types)
-		is = (function(types, object) {
-		
-			each(types, function(k, v) {
-				(function(v) {
-					object[v.toLowerCase()] = function(it) {
-						return it.constructor == window[v];
-					};
-				})(v);
-			});
-			
-			return object;
-			
-		})(['String', 'Array'], {}),
 		
 		// load a resource and execute a callback when it is loaded 
 		// inspired from http://www.nczonline.net/blog/2009/07/28/the-best-way-to-load-external-javascript/
@@ -89,33 +78,90 @@ var req = window.req || (function(doc) {
 		
 		// convert an array of resources into URLs pointing to the resource file
 		modulesToFiles = function(resources) {
-		
+			var arr = [];
+			each(resources, function(resource) {
+				if (!loaded[resource] && !loading[resource]) {
+					if (resource.substr(0, 4) === 'http') arr.push(resource);
+					else arr.push('./' + resource + '.js');
+				};
+			});
+			return arr;
 		},
 		
-		// process a new request for resources
-		process = function(resources, fn) {
-		
+		// convert modules to an array of object to use to execute the final callback
+		modulesToArgs = function(resources) {
+			var arr = [];
+			each(resources, function(resource) {
+				if (resource.substr(0, 4) !== 'http') {
+					if (!instances[resource]) instances[resource] = new (objects[resource] || function(){});
+					arr.push(instances[resource]);
+				};
+			});
+			return arr;
 		},
 		
-		// execute the callback for a given request of resources
-		execute = function(resources) {
+		execute = (function() {
 		
+			var current = null,
+				run = function() {
+				
+				};
+		
+			return function(resources, callback) {
+			console.log(executeStack);
+				each(executeStack, function(data) {
+					
+				});
+			};
+		})(),
+		
+		// check for request ready to mark as done and call the execute function if so
+		check = function(resources, callback) {
+
+			var good = true;
+			
+			each(resources, function(resource) {
+				if (loaded[resource] !== true) good = false;
+			});
+			
+			if (good) {
+				executeStack.push({
+					resources: resources,
+					callback: callback
+				});
+				execute();
+			}
 		};
 	
 	
 	// public
-	return function() {
-		if (typeof arguments[0] === 'string') {
-			if (typeof arguments[1] === 'string') settings[arguments[0]] = arguments[1];
-			else return settings[arguments[0]];
+	return function(resources, callback) {
+	
+		var files = modulesToFiles(resources);
+		
+		if (files.length) {
+			each(files, function(resource) {
+				loading[resource] = true;
+				load(resource, function() {
+					loaded[resource] = true;
+					loading[resource] = false;
+					check(files, callback);
+				});
+			});
 		}
-		else process.apply(this, arguments);
+		else check(files, callback);
 	};
+
 })(document);
 
 /* public testing */
-req('path','foo');
-console.log(req('path'));
+req(['dummy'], function() {
+	console.log(dummy);
+	dummy = false;
+});
+req(['dummy'], function() {
+	console.log(dummy);
+});
 
 
 
