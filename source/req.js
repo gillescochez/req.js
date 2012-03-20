@@ -85,7 +85,7 @@ var req = window.req || (function(doc) {
 		},
 		
 		// convert an array of resources into URLs pointing to the resource file
-		modulesToFiles = function(resources) {
+		convert = function(resources) {
 			var arr = [];
 			each(resources, function(resource) {
 				if (!loaded[resource] && !loading[resource]) {
@@ -96,7 +96,7 @@ var req = window.req || (function(doc) {
 			return arr;
 		},
 		
-		// convert modules to an array of object to use to execute the final callback
+		// create a argument array made out of module loaded
 		modulesToArgs = function(resources) {
 			var arr = [];
 			each(resources, function(resource) {
@@ -108,33 +108,19 @@ var req = window.req || (function(doc) {
 			return arr;
 		},
 		
-		execute = (function() {
-
-			var run = function() {
-				
-			};
-		
-			return function(resources, callback) {
-			
-				var hash = getHash(resources);
-				/*
-				
-					build an array with the callback and pass the array as an argument to the run command
-					the run command can then take care of building the callback chain and handle both async and sync setting
-				
-				*/
-				each(executeStack[hash], function(i, fn) {
-				
-					fn();
-					
+		// execute a stack of callback
+		execute = function(hash) {
+			each(executeStack[hash], function(i, callback) {
+				if (!executeStack[hash][i - 1] && callback) {
+					callback();
 					executeStack[hash].splice(i, 1);
-					
-				}, true);
-			};
-		})(),
+					execute(hash);
+				};
+			}, true);
+		},
 		
 		// check for request ready to mark as done and call the execute function if so
-		check = function(resources, callback) {
+		check = function(resources) {
 
 			var good = true,
 				hash = getHash(resources);
@@ -143,29 +129,31 @@ var req = window.req || (function(doc) {
 				if (loaded[resource] !== true) good = false;
 			});
 			
-			if (good) {
-				if (!executeStack[hash]) executeStack[hash] = [];
-				executeStack[hash].push(callback);
-				execute(resources);
-			}
+			if (good) execute(hash);
 		};
 	
 	// public
 	return function(resources, callback) {
 	
-		var files = modulesToFiles(resources);
+		var hash;
 		
-		if (files.length) {
-			each(files, function(resource) {
+		resources = convert(resources);
+		hash = getHash(resources);
+		
+		if (!executeStack[hash]) executeStack[hash] = [];
+		executeStack[hash].push(callback);
+		
+		if (resources.length) {
+			each(resources, function(resource) {
 				loading[resource] = true;
 				load(resource, function() {
 					loaded[resource] = true;
 					loading[resource] = false;
-					check(files, callback);
+					check(resources);
 				});
 			});
 		}
-		else check(files, callback);
+		else check(resources);
 		
 		// chainability
 		return req;
