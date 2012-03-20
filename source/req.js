@@ -20,15 +20,18 @@
 				console.log('foo');
 			}
 		});
-
-
-
-Load files
-
-multiple files can be common to different call
-
-on every file load iterate through a list of requests for every requests
-check if the resources are loaded, if they are run the callback and remove the requests
+	
+	Chainability (really minimalist chainability)
+	
+		req('path','http://')
+		('core', {
+			init:function(){
+			
+			}
+		)
+		(['core','module'], function(core,mod) {
+			core.init(); 
+		});
 
 */
 // start req object, do not overwrite as would reset currently loaded req management
@@ -38,7 +41,7 @@ var req = window.req || (function(doc) {
 	var 
 		
 		// callback to execute in order
-		executeStack = [],
+		executeStack = {},
 		
 		// track loaded and loading resources
 		loaded = {},
@@ -51,9 +54,9 @@ var req = window.req || (function(doc) {
 		instances = {},
 		
 		// helper function to iterate over arrays
-		each = function(arr, fn) {
+		each = function(arr, fn, key) {
 			var len = arr.length, i = 0;
-			for (; i < len; i++) fn.apply(null, [arr[i]]);
+			for (; i < len; i++) fn.apply(null, ( key ? [i, arr[i]] : [arr[i]] ) );
 		},
 		
 		// load a resource and execute a callback when it is loaded 
@@ -74,6 +77,11 @@ var req = window.req || (function(doc) {
 
 			script.src = url;
 			doc.getElementsByTagName('head')[0].appendChild(script);
+		},
+		
+		// convert resources array into a hash string (used by the executeStack)
+		getHash = function(resources) {
+			return resources.join('');
 		},
 		
 		// convert an array of resources into URLs pointing to the resource file
@@ -101,38 +109,46 @@ var req = window.req || (function(doc) {
 		},
 		
 		execute = (function() {
-		
-			var current = null,
-				run = function() {
+
+			var run = function() {
 				
-				};
+			};
 		
 			return function(resources, callback) {
-			console.log(executeStack);
-				each(executeStack, function(data) {
+			
+				var hash = getHash(resources);
+				/*
+				
+					build an array with the callback and pass the array as an argument to the run command
+					the run command can then take care of building the callback chain and handle both async and sync setting
+				
+				*/
+				each(executeStack[hash], function(i, fn) {
+				
+					fn();
 					
-				});
+					executeStack[hash].splice(i, 1);
+					
+				}, true);
 			};
 		})(),
 		
 		// check for request ready to mark as done and call the execute function if so
 		check = function(resources, callback) {
 
-			var good = true;
+			var good = true,
+				hash = getHash(resources);
 			
 			each(resources, function(resource) {
 				if (loaded[resource] !== true) good = false;
 			});
 			
 			if (good) {
-				executeStack.push({
-					resources: resources,
-					callback: callback
-				});
-				execute();
+				if (!executeStack[hash]) executeStack[hash] = [];
+				executeStack[hash].push(callback);
+				execute(resources);
 			}
 		};
-	
 	
 	// public
 	return function(resources, callback) {
@@ -150,6 +166,9 @@ var req = window.req || (function(doc) {
 			});
 		}
 		else check(files, callback);
+		
+		// chainability
+		return req;
 	};
 
 })(document);
@@ -158,8 +177,7 @@ var req = window.req || (function(doc) {
 req(['dummy'], function() {
 	console.log(dummy);
 	dummy = false;
-});
-req(['dummy'], function() {
+})(['dummy'], function() {
 	console.log(dummy);
 });
 
