@@ -1,65 +1,3 @@
-/*
-	Usage
-	
-		// load modules
-		req(['user','panel'], function(user, panel) {
-		
-		});
-		
-		// load modules in the callback scope and an external file in the global scope
-		req(['user','http://domain.com/data.js','panel'], function(user, panel) {
-		
-		});
-		
-		// set a configuration parameter
-		req('path','http://resources.domain.com/js/');
-		
-		// set multiple configuration parameter
-		req({
-			path: './',
-			ordered: false
-		});
-		
-		// get a configuration paramete
-		var p = req('get','path');
-		
-		// get the settings object
-		var config = req().settings;
-		
-		// declare a module
-		req('dummy', {
-			foo: function() {
-				console.log('foo');
-			}
-		});
-		
-		// request a module (the module must be loaded)
-		var mod = req('dummy');
-		
-		// get an object containing all the modules
-		var list = req().objects;
-		
-		// get an object of both settings and objects setting in one go (as you might have guess by now...)
-		var obj = req();
-	
-	Chainability (really minimalist chainability)
-	
-		// change path
-		req('path','./')
-		
-		// declare a module
-		('core', {
-			init:function(){
-			
-			}
-		)
-		
-		// load the declared module just for irony sake
-		(['core','module'], function(core,mod) {
-			core.init(); 
-		});
-
-*/
 // start req object, do not overwrite as would reset currently loaded req management
 var req = window.req || (function(doc) {
 
@@ -68,8 +6,7 @@ var req = window.req || (function(doc) {
 	
 		// settings
 		settings = {
-			path: './modules/', // root path to the modules location
-			ordered: true // set to false to disable the ordered execution of callback set for the same requests
+			path: './modules/' // root path to the modules location
 		},
 		
 		// callback to execute in order
@@ -216,7 +153,6 @@ var req = window.req || (function(doc) {
 		declare = function(name, object) {
 			if (!objects[name]) objects[name] = object;
 			else throw name + ' already exists!';
-			console.log(objects);
 		};
 	
 	// public
@@ -239,6 +175,7 @@ var req = window.req || (function(doc) {
 				else throw arguments[0] + ' does not exists!';
 			};
 			
+			// set multiple settings in one go req({});
 			if (is.Object(arguments[0])) {
 				for (var name in arguments[0]) config(name, arguments[0][name]);
 			};
@@ -267,46 +204,3 @@ var req = window.req || (function(doc) {
 	};
 
 })(document);
-
-/* public testing */
-
-// first callback
-req(['dummy'], function() {
-	console.log(dummy);
-	dummy = false;
-	
-// second callback
-})(['dummy'], function() {
-	console.log(dummy);
-	
-// change the modules path
-});
-
-req('dummy', {
-	foo: 'foo'
-});
-
-// in 5 second do the same request but we change the path just before so it will load another dummy.js
-// which will overwrite the dummy = false of the first callback (as executed in order they were written)
-setTimeout(function() {
-	req('path','')(['dummy'], function() {
-		console.log(dummy);
-		console.log(req('dummy'));
-		console.log(req());
-		console.log(req().settings);
-		console.log(req().objects);
-	})
-}, 5000);
-
-
-
-
-
-
-
-
-
-
-
-
-
