@@ -58,7 +58,7 @@ var obj = req();
 
 ``` 
 
-## Minalistic chainability
+## Minimalistic chainability
 
 ```javascript
 
