@@ -1,8 +1,6 @@
 # Introduction
 
-req.js is tiny script / module management system aims for small application development where big tools like, the popular and useful, requirejs often end up taking 90% of the final footprint.
-
-Here is the little things it can do:
+req.js is tiny script / module (sort of) management system which can do:
 
 - Load javascript files and execute callback when the requested files are loaded
 - Execute callbacks in the order they were declared for multiple identical requests
