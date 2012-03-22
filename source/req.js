@@ -1,3 +1,4 @@
+/*! github.com/gillescochez/req.js */
 // start req object, do not overwrite as would reset currently loaded req management
 var req = window.req || (function(doc) {
 
@@ -192,7 +193,7 @@ var req = window.req || (function(doc) {
 				declare(arguments[0], arguments[1]);
 			};
 
-			// global setting set req('path', './modules/'); and get req('get','path');
+			// configuration parameters setter req('path', './modules/'); and getter req('get','path');
 			if (is.String(arguments[0]) && is.String(arguments[1])) {
 				if (arguments[0] === 'get') return config(arguments[1]);
 				else config(arguments[0], arguments[1]);
