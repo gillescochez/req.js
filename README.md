@@ -1,6 +1,6 @@
 # Introduction
 
-req.js is tiny script / module (sort of) management system which can do:
+req.js is tiny script / module (sort of) management system which can:
 
 - Load javascript files and execute callback when the requested files are loaded
 - Execute callbacks in the order they were declared for multiple identical requests
