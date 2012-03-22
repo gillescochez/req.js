@@ -1,5 +1,4 @@
 /*! github.com/gillescochez/req.js */
-// start req object, do not overwrite as would reset currently loaded req management
 var req = window.req || (function(doc) {
 
 	// private
@@ -7,33 +6,33 @@ var req = window.req || (function(doc) {
 	
 		// settings
 		settings = {
-			path: './modules/' // root path to the modules location
+			path: './modules/'
 		},
 		
-		// callback to execute in order
+		// stack to process
 		stack = {},
 		
 		// track loaded and loading resources
 		loaded = {},
 		loading = {},
 		
-		// store objects created from module declaration
+		// store objects created from "module" declaration
 		objects = {},
 		
-		// settings setter
+		// settings setter/getter
 		config = function(name, value) {
 			if (!settings[name]) throw name + ' is not a configuration parameter';
 			if (value) settings[name] = value;
 			else return settings[name];
 		},
 		
-		// helper function to iterate over arrays
+		// helper function to iterate over arrays (if key true return the key as first argument and balue second)
 		each = function(arr, fn, key) {
 			var len = arr.length, i = 0;
 			for (; i < len; i++) fn.apply(null, key ? [i, arr[i]] : [arr[i]]);
 		},
 		
-		// strict type checker to simplify function overloading
+		// strict type checker to simplify function overloading (see github.com/gillescochez/is.js for a full version independant)
 		is = (function(arr, obj) {
 			
 			each(arr, function(type) {
@@ -48,7 +47,7 @@ var req = window.req || (function(doc) {
 			
 		})(['Array','String','Object','Function'], {}),
 		
-		// load a resource and execute a callback when it is loaded 
+		// load a js file and execute a callback when it is loaded 
 		// inspired from http://www.nczonline.net/blog/2009/07/28/the-best-way-to-load-external-javascript/
 		load = function(url, callback){
 
@@ -104,7 +103,8 @@ var req = window.req || (function(doc) {
 			}, true);
 		},
 		
-		// executed when a resource load it check for loading state of resources requests
+		// executed when a resource load, it checks for loading state of resources 
+		// requested and call the execute function if criteria are met
 		done = function(resources) {
 
 			var good = true;
@@ -151,6 +151,7 @@ var req = window.req || (function(doc) {
 			else done(resources);
 		},
 		
+		// used to create "modules"
 		declare = function(name, object) {
 			if (!objects[name]) objects[name] = object;
 			else throw name + ' already exists!';
