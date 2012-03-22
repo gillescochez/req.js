@@ -28,5 +28,10 @@ test('Configuration', function() {
 	equal(req('get','path'), pathExpected, 'configuration parameter setter');
 	req('path', expected.settings.path);
 	
+	// configuration changes via object (to change more than one parameter when we actually have more than one lol)
+	req({path:pathExpected});
+	equal(req('get','path'), pathExpected, 'configuration changes via object');
+	req('path', expected.settings.path);
+	
 	
 });
