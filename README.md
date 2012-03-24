@@ -29,7 +29,7 @@ req('path','http://resources.domain.com/js/');
 // set multiple configuration parameter
 req({
 	path: './',
-	ordered: false
+	order: false
 });
 
 // get a configuration paramete
@@ -71,7 +71,8 @@ req('path','./')
 )
 
 // load the declared module just for irony sake
-(['core','module'], function(core,mod) {
-	core.init(); 
+(['core','module'], function(core, mod) {
+	core.init();
+	mod.load();
 });
 ```

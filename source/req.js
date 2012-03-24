@@ -6,7 +6,8 @@ var req = window.req || (function(doc) {
 	
 		// settings
 		settings = {
-			path: './modules/'
+			path: './modules/',
+			order: true
 		},
 		
 		// stack to process
@@ -76,7 +77,7 @@ var req = window.req || (function(doc) {
 		convert = function(resources) {
 			var arr = [];
 			each(resources, function(resource) {
-				if (resource.substr(0, 4) === 'http') arr.push(resource);
+				if (/^(http\:\/\/|https\:\/\/|\.)/.test(resource)) arr.push(resource);
 				else arr.push(settings.path + resource + '.js');
 			});
 			return arr;
@@ -86,20 +87,22 @@ var req = window.req || (function(doc) {
 		args = function(resources) {
 			var arr = [];
 			each(resources, function(resource) {
-				if (resource.substr(0, 4) !== 'http') arr.push(objects[resource]);
+				if (!/^(http\:\/\/|https\:\/\/|\.)/.test(resource)) arr.push(objects[resource]);
 			});
 			return arr;
 		},
 		
 		// execute a stack of callback for a given request
 		execute = function(hash) {
-
 			each(stack[hash].callbacks, function(i, callback) {
-				if (!stack[hash][i - 1] && callback) {
-					callback.apply(this, args(stack[hash].resources));
-					stack[hash].callbacks.splice(i, 1);
-					execute(hash);
-				};
+				if (settings.order) {
+					if (!stack[hash][i - 1] && callback) {
+						callback.apply(this, args(stack[hash].resources));
+						stack[hash].callbacks.splice(i, 1);
+						execute(hash);
+					};
+				}
+				else callback.apply(this, args(stack[hash].resources));
 			}, true);
 		},
 		
@@ -117,25 +120,24 @@ var req = window.req || (function(doc) {
 		},
 		
 		// process a resources request by loading them up
-		process = function(unloaded, resources) {
-			each(unloaded, function(resource) {
-				loading[resource] = true;
-				load(resource, function() {
-					loaded[resource] = true;
-					loading[resource] = false;
-					done(resources);
-				});
+		process = function(files, resources) {
+			each(files, function(resource) {
+				if (loaded[resource]) done(resources);
+				else if (!loading[resource] && !loaded[resource]) {
+					loading[resource] = true;
+					load(resource, function() {
+						loaded[resource] = true;
+						loading[resource] = false;
+						done(resources);
+					});
+				};
 			});
 		},
 		
 		// handle a new resources request
 		request = function(resources, callback) {
 		
-			var unloaded, hash;
-			
-			// convert resources request into a list of unloaded files and build hash
-			unloaded = convert(resources);
-			hash = getHash(resources);
+			var hash = getHash(resources);
 			
 			// add the callback to the stack
 			if (!stack[hash]) {
@@ -143,18 +145,18 @@ var req = window.req || (function(doc) {
 					callbacks: [],
 					resources: resources
 				};
-			};
+			}
+
 			stack[hash].callbacks.push(callback);
-			
-			// either process to loading resources or to done directly if no resources need loading
-			if (unloaded.length) process(unloaded, resources);
-			else done(resources);
+			process(convert(resources), resources);
 		},
 		
 		// used to create "modules"
 		declare = function(name, object) {
-			if (!objects[name]) objects[name] = object;
-			else throw name + ' already exists!';
+			if (!objects[name]) {
+				objects[name] = object;
+				if (!objects[name].name) objects[name].name = name;
+			} else throw name + ' already exists!';
 		};
 	
 	// public
@@ -185,7 +187,7 @@ var req = window.req || (function(doc) {
 		
 		// 2 arguments :)
 		if (arguments.length === 2) {
-		
+
 			// request req([], function(){});
 			if (is.Array(arguments[0]) && is.Function(arguments[1])) request(arguments[0], arguments[1]);
 			

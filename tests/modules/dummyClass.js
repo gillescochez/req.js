@@ -1,0 +1,1 @@
+req('dummyClass', function Class(){});
