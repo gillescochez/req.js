@@ -146,8 +146,8 @@ var req = window.req || (function(doc) {
 
     // strict type check helpers                
     each(['Array','String','Object','Function'], function(type) {
-        this['is' + type] = function(it) {
-            return it.constructor === window[type];
+        this[type.substring(0, 3)] = function(it) {
+            return it.constructor == window[type];
         };
     });
  
@@ -169,13 +169,13 @@ var req = window.req || (function(doc) {
         if (args.length === 1) {
         
             // return an object (object must be loaded) var mod = req('module');
-            if (isString(args[0])) {
+            if (Str(args[0])) {
                 if (objects[args[0]]) return objects[args[0]];
                 else throw args[0] + ' does not exists!';
             };
             
             // set multiple settings in one go req({});
-            if (isObject(arguments[0])) {
+            if (Obj(arguments[0])) {
                 for (name in args[0]) config(name, args[0][name]);
             };
         };
@@ -184,15 +184,15 @@ var req = window.req || (function(doc) {
         if (args.length === 2) {
 
             // request req([], function(){});
-            if (isArray(args[0]) && isFunction(args[1])) request(args[0], args[1]);
+            if (Arr(args[0]) && Fun(args[1])) request(args[0], args[1]);
             
             // declaring a module req('module', {} || function(){});
-            if (isString(args[0]) && (isObject(args[1]) || isFunction(args[1]))) {
+            if (Str(args[0]) && (Obj(args[1]) || Fun(args[1]))) {
                 declare(args[0], args[1]);
             };
 
             // configuration parameters setter req('path', './modules/'); and getter req('get','path');
-            if (isString(args[0]) && isString(args[1])) {
+            if (Str(args[0]) && Str(args[1])) {
                 if (args[0] === 'get') return config(args[1]);
                 else config(args[0], args[1]);
             };
