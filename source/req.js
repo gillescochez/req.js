@@ -32,22 +32,7 @@ var req = window.req || (function(doc) {
             var len = arr.length, i = 0;
             for (; i < len; i++) fn.apply(null, key ? [i, arr[i]] : [arr[i]]);
         },
-        
-        // strict type checker to simplify function overloading (see github.com/gillescochez/is.js for a full version independant)
-        is = (function(arr, obj) {
                 
-            each(arr, function(type) {
-                (function(type) {
-                    obj[type] = function(it) {
-                        return it.constructor === window[type];
-                    };
-                })(type);
-            });
-            
-            return obj;
-                
-        })(['Array','String','Object','Function'], {}),
-        
         // load a js file and execute a callback when it is loaded 
         // inspired from http://www.nczonline.net/blog/2009/07/28/the-best-way-to-load-external-javascript/
         load = function(url, callback){
@@ -159,10 +144,18 @@ var req = window.req || (function(doc) {
             } else throw name + ' already exists!';
         };
 
+    // strict type check helpers                
+    each(['Array','String','Object','Function'], function(type) {
+        this['is' + type] = function(it) {
+            return it.constructor === window[type];
+        };
+    });
+ 
     // public
     return function() {
 
-        var args = arguments;
+        var args = arguments,
+            name;
 
         // 0 argument :(
         if (args.length === 0) {
@@ -176,14 +169,14 @@ var req = window.req || (function(doc) {
         if (args.length === 1) {
         
             // return an object (object must be loaded) var mod = req('module');
-            if (is.String(args[0])) {
+            if (isString(args[0])) {
                 if (objects[args[0]]) return objects[args[0]];
                 else throw args[0] + ' does not exists!';
             };
             
             // set multiple settings in one go req({});
-            if (is.Object(arguments[0])) {
-                for (var name in args[0]) config(name, args[0][name]);
+            if (isObject(arguments[0])) {
+                for (name in args[0]) config(name, args[0][name]);
             };
         };
         
@@ -191,15 +184,15 @@ var req = window.req || (function(doc) {
         if (args.length === 2) {
 
             // request req([], function(){});
-            if (is.Array(args[0]) && is.Function(args[1])) request(args[0], args[1]);
+            if (isArray(args[0]) && isFunction(args[1])) request(args[0], args[1]);
             
             // declaring a module req('module', {} || function(){});
-            if (is.String(args[0]) && (is.Object(args[1]) || is.Function(args[1]))) {
+            if (isString(args[0]) && (isObject(args[1]) || isFunction(args[1]))) {
                 declare(args[0], args[1]);
             };
 
             // configuration parameters setter req('path', './modules/'); and getter req('get','path');
-            if (is.String(args[0]) && is.String(args[1])) {
+            if (isString(args[0]) && isString(args[1])) {
                 if (args[0] === 'get') return config(args[1]);
                 else config(args[0], args[1]);
             };
