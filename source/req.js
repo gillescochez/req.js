@@ -22,7 +22,7 @@ var req = window.req || (function(doc) {
         
         // settings setter/getter
         config = function(name, value) {
-            if (!settings[name]) throw name + ' is not a configuration parameter';
+            if (!settings[name]) throw name + ' is not recognised';
             if (value) settings[name] = value;
             else return settings[name];
         },
@@ -175,7 +175,7 @@ var req = window.req || (function(doc) {
             };
             
             // set multiple settings in one go req({});
-            if (Obj(arguments[0])) {
+            if (Obj(args[0])) {
                 for (name in args[0]) config(name, args[0][name]);
             };
         };
