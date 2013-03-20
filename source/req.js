@@ -155,10 +155,11 @@ var req = window.req || (function(doc) {
     return function() {
 
         var args = arguments,
+			argsLen = args.length,
             name;
 
         // 0 argument :(
-        if (args.length === 0) {
+        if (!argsLen) {
             return {
                 settings: settings,
                 objects: objects
@@ -166,7 +167,7 @@ var req = window.req || (function(doc) {
         };
         
         // 1 argument :|
-        if (args.length === 1) {
+        if (argsLen === 1) {
         
             // return an object (object must be loaded) var mod = req('module');
             if (Str(args[0])) {
@@ -181,7 +182,7 @@ var req = window.req || (function(doc) {
         };
         
         // 2 arguments :)
-        if (args.length === 2) {
+        if (argsLen === 2) {
 
             // request req([], function(){});
             if (Arr(args[0]) && Fun(args[1])) request(args[0], args[1]);
@@ -197,9 +198,6 @@ var req = window.req || (function(doc) {
                 else config(args[0], args[1]);
             };
         };
-        
-        // chainability
-        return req;
     };
 
 })(document);
