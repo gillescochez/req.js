@@ -68,7 +68,7 @@ var req = window.req || (function(doc) {
             return arr;
         },
         
-        // create a argument array made out of module required in the resources request
+        // create an argument array made out of module required in the resources request
         args = function(resources) {
             var arr = [];
             each(resources, function(resource) {
@@ -106,7 +106,11 @@ var req = window.req || (function(doc) {
         
         // process a resources request by loading them up
         process = function(files, resources) {
-            each(files, function(resource) {
+            each(files, function(i, resource) {
+			
+				// if object available just mark as loaded 
+				if (objects[resources[i]]) loaded[resource] = true;
+				
                 if (loaded[resource]) done(resources);
                 else if (!loading[resource] && !loaded[resource]) {
                     loading[resource] = true;
@@ -116,7 +120,7 @@ var req = window.req || (function(doc) {
                         done(resources);
                     });
                 };
-            });
+            },true);
         },
         
         // handle a new resources request
@@ -127,12 +131,11 @@ var req = window.req || (function(doc) {
             // add the callback to the stack
             if (!stack[hash]) {
                 stack[hash] = {
-                    callbacks: [],
+                    callbacks: [callback],
                     resources: resources
                 };
             };
 
-            stack[hash].callbacks.push(callback);
             process(convert(resources), resources);
         },
         
@@ -140,7 +143,7 @@ var req = window.req || (function(doc) {
         declare = function(name, object) {
             if (!objects[name]) {
                 objects[name] = object;
-                if (!objects[name].name) objects[name].name = name;
+				if (!objects[name].name) objects[name].name = name;
             } else throw name + ' already exists!';
         };
 
@@ -198,6 +201,32 @@ var req = window.req || (function(doc) {
                 else config(args[0], args[1]);
             };
         };
+		
+		// 3 arguments :D
+		if (argsLen === 3) {
+			
+			 // declaring a module with dependencies
+			// req('module', [], {} || function(){});
+            if (Str(args[0]) && Arr(args[1]) && (Obj(args[1]) || Fun(args[1]))) {};
+		
+		};
+		
+		return req;
     };
 
 })(document);
+
+/*
+
+	Features to add
+		
+		- Allow for other module to be listed as dependencies
+		and make them available inside the object being build
+		
+		req('dummy', ['user','panel'], function(user, panel) {
+			
+			
+		});
+
+
+*/

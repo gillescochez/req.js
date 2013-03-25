@@ -32,7 +32,7 @@ req({
 	order: false
 });
 
-// get a configuration paramete
+// get a configuration parameter
 var p = req('get','path');
 
 // get the settings object
