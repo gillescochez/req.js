@@ -1,10 +1,13 @@
 /*! github.com/gillescochez/req.js */
 var req = window.req || (function(doc) {
 
-    // private
+	'use strict';
+
+	// private
     var 
-    
-        // settings
+		global = function(){},
+		
+		// settings
         settings = {
             path: './modules/',
             order: true
@@ -149,7 +152,7 @@ var req = window.req || (function(doc) {
 
     // strict type check helpers                
     each(['Array','String','Object','Function'], function(type) {
-        this[type.substring(0, 3)] = function(it) {
+        global[type.substring(0, 3)] = function(it) {
             return it.constructor == window[type];
         };
     });
@@ -173,13 +176,13 @@ var req = window.req || (function(doc) {
         if (argsLen === 1) {
         
             // return an object (object must be loaded) var mod = req('module');
-            if (Str(args[0])) {
+            if (global.Str(args[0])) {
                 if (objects[args[0]]) return objects[args[0]];
                 else throw args[0] + ' does not exists!';
             };
             
             // set multiple settings in one go req({});
-            if (Obj(args[0])) {
+            if (global.Obj(args[0])) {
                 for (name in args[0]) config(name, args[0][name]);
             };
         };
@@ -188,15 +191,15 @@ var req = window.req || (function(doc) {
         if (argsLen === 2) {
 
             // request req([], function(){});
-            if (Arr(args[0]) && Fun(args[1])) request(args[0], args[1]);
+            if (global.Arr(args[0]) && global.Fun(args[1])) request(args[0], args[1]);
             
             // declaring a module req('module', {} || function(){});
-            if (Str(args[0]) && (Obj(args[1]) || Fun(args[1]))) {
+            if (global.Str(args[0]) && (global.Obj(args[1]) || global.Fun(args[1]))) {
                 declare(args[0], args[1]);
             };
 
             // configuration parameters setter req('path', './modules/'); and getter req('get','path');
-            if (Str(args[0]) && Str(args[1])) {
+            if (global.Str(args[0]) && global.Str(args[1])) {
                 if (args[0] === 'get') return config(args[1]);
                 else config(args[0], args[1]);
             };
@@ -207,7 +210,7 @@ var req = window.req || (function(doc) {
 			
 			 // declaring a module with dependencies
 			// req('module', [], {} || function(){});
-            if (Str(args[0]) && Arr(args[1]) && (Obj(args[1]) || Fun(args[1]))) {};
+            if (global.Str(args[0]) && global.Arr(args[1]) && (global.Obj(args[1]) || global.Fun(args[1]))) {};
 		
 		};
 		
