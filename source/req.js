@@ -5,7 +5,9 @@ var req = window.req || (function(doc) {
 
 	// private
     var 
-		global = function(){},
+		head = doc.getElementsByTagName('head')[0],
+		
+		global = {},
 		
 		// settings
         settings = {
@@ -53,7 +55,7 @@ var req = window.req || (function(doc) {
             else script.onload = callback;
 
             script.src = url;
-            doc.getElementsByTagName('head')[0].appendChild(script);
+            head.appendChild(script);
         },
         
         // convert resources array into a hash string (used by the stack)
