@@ -1,8 +1,8 @@
 # Introduction
 
-req.js is tiny script / module (sort of) management system which can:
+req.js is tiny script / module management system which can:
 
-- Load javascript files and execute callback when the requested files are loaded
+- Lazy load javascript files and execute callback when the requested files are loaded
 - Execute callbacks in the order they were declared for multiple identical requests
 - Store objects declared using req API and make them available as arguments in the callback function when requested
 - Return its settings object and its module storage objects
@@ -56,6 +56,22 @@ var obj = req();
 
 ``` 
 
+## Native
+
+req.js also extends the Array, Object and Function objects so you can do funky things.
+
+```javascript
+
+(function(){ return this; }).req('fooClass');
+
+({foo:true}).req('fooObject');
+
+['fooObject','fooClass'].req(function(obj, clas) {
+	console.log(obj, clas);
+});
+
+```
+
 ## Minimalistic chainability
 
 ```javascript
@@ -76,3 +92,4 @@ req('path','./')
 	mod.load();
 });
 ```
+
