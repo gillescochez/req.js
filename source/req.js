@@ -205,31 +205,16 @@ var req = window.req || (function(doc) {
             };
         };
 		
-		// 3 arguments :D
-		if (argsLen === 3) {
-			
-			 // declaring a module with dependencies
-			// req('module', [], {} || function(){});
-            if (global.Str(args[0]) && global.Arr(args[1]) && (global.Obj(args[1]) || global.Fun(args[1]))) {};
-		
-		};
-		
 		return req;
     };
 
 })(document);
 
-/*
+// nope no native check but it's "req" so it would be a waste
+Array.prototype.req = function(callback) {
+	return req(this, callback);
+};
 
-	Features to add
-		
-		- Allow for other module to be listed as dependencies
-		and make them available inside the object being build
-		
-		req('dummy', ['user','panel'], function(user, panel) {
-			
-			
-		});
-
-
-*/
+Object.prototype.req = Function.prototype.req = function(name) {
+	return req(name, this);
+};
