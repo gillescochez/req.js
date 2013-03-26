@@ -1,7 +1,10 @@
 test('Structure', function() {
-    expect(2);
+    expect(5);
     ok(req === window.req, 'req is globally defined');
     ok(req.constructor == Function, 'req is a function');
+    ok([].req, 'req extends []');
+    ok(({}).req, 'req extends {}');
+    ok((function(){}).req, 'req extends function');
 });
 
 test('Configuration', function() {
