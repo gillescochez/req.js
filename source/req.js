@@ -5,6 +5,8 @@ var req = window.req || (function(doc) {
 
 	// private
     var 
+		req,
+		
 		head = doc.getElementsByTagName('head')[0],
 		
 		global = {},
@@ -84,16 +86,18 @@ var req = window.req || (function(doc) {
         
         // execute a stack of callback for a given request
         execute = function(hash) {
-            each(stack[hash].callbacks, function(i, callback) {
-                if (settings.order) {
-                    if (!stack[hash][i - 1] && callback) {
-                        callback.apply(this, args(stack[hash].resources));
-                        stack[hash].callbacks.splice(i, 1);
-                        execute(hash);
-                    };
-                }
-                else callback.apply(this, args(stack[hash].resources));
-            }, true);
+			each(stack[hash], function(j) {
+				each(stack[hash][j].callbacks, function(i, callback) {
+					if (settings.order) {
+						if (!stack[hash][j][i - 1] && callback) {
+							callback.apply(this, args(stack[hash][j].resources));
+							stack[hash][j].callbacks.splice(i, 1);
+							execute(hash);
+						};
+					}
+					else callback.apply(this, args(stack[hash][j].resources));
+				}, true);
+			}, true);
         },
         
         // executed when a resource load, it checks for loading state of resources 
@@ -134,12 +138,11 @@ var req = window.req || (function(doc) {
             var hash = getHash(resources);
             
             // add the callback to the stack
-            if (!stack[hash]) {
-                stack[hash] = {
-                    callbacks: [callback],
-                    resources: resources
-                };
-            };
+            if (!stack[hash]) stack[hash] = [];
+			stack[hash].push({
+				callbacks: [callback],
+				resources: resources
+			});
 
             process(convert(resources), resources);
         },
@@ -160,7 +163,7 @@ var req = window.req || (function(doc) {
     });
  
     // public
-    return function() {
+    req = function() {
 
         var args = arguments,
 			argsLen = args.length,
@@ -209,14 +212,15 @@ var req = window.req || (function(doc) {
 		
 		return req;
     };
+	
+	Array.prototype.req = function(callback) {
+		return req(this, callback);
+	};
+
+	Object.prototype.req = Function.prototype.req = function(name) {
+		return req(name, this);
+	};
+	
+	return req;
 
 })(document);
-
-// nope no native check but it's "req" so it would be a waste
-Array.prototype.req = function(callback) {
-	return req(this, callback);
-};
-
-Object.prototype.req = Function.prototype.req = function(name) {
-	return req(name, this);
-};
