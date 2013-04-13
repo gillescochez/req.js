@@ -8,6 +8,7 @@ req.js is tiny script / module management system which can:
 - Return its settings object and its module storage objects
 - Set and get configuration parameter
 - Can return a loaded/declared object from its storage
+- Module declaration dependencies loading
 
 ## Usage
 
@@ -55,6 +56,17 @@ var list = req().objects;
 var obj = req();
 
 ``` 
+
+
+## Module dependencies
+
+```javascript
+
+req('mod', ['dummyObject','dummyClass'], function(dumObj, dumCla) {
+	return this;
+});
+
+```
 
 ## Native
 
