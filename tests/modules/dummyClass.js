@@ -1,1 +1,3 @@
-req('dummyClass', function Class(){});
+req('dummyClass', function dummyClass(){
+	return this;
+});

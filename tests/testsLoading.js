@@ -1,7 +1,7 @@
 req(['dummyObject','./jquery.js', 'dummyClass'], function(obj, clas) {
 	test('Loading resources', function() {
 	
-		expect(7);
+		expect(5);
 
 		ok(window.jQuery, 'jQuery in the global scope');
 
@@ -9,10 +9,7 @@ req(['dummyObject','./jquery.js', 'dummyClass'], function(obj, clas) {
 		ok(clas, 'dummyClass availability');
 		
 		equal(obj.name, 'dummyObject', 'object name');
-		equal(clas.name, 'Class', 'class name');
-		
-		ok(obj.constructor == Object, 'dummyObject constructor Object');
-		ok(clas.constructor == Function, 'dummyClass constructor Function');
+		equal(clas.name, 'dummyClass', 'class name');
 	});
 });
 

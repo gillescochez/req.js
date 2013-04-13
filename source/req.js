@@ -146,12 +146,32 @@ var req = window.req || (function(doc) {
 
             process(convert(resources), resources);
         },
+		
+		register = function(name, object) {
+			objects[name] = object;
+			if (!objects[name].name) objects[name].name = name;
+		},
         
         // used to create "modules"
-        declare = function(name, object) {
+        declare = function(name, object, imports) {
+		
             if (!objects[name]) {
-                objects[name] = object;
-				if (!objects[name].name) objects[name].name = name;
+			
+				if (typeof object == 'function') {
+				
+					if (!imports) register(name, object.apply(null));
+					else {
+					
+						(function(name, object, imports) {
+							console.log('importing');
+							req(imports, function() {
+								register(name, object.apply(null, arguments));
+							});
+						})(name, object, imports);
+					};
+				}
+				else register(name, object);
+				
             } else throw name + ' already exists!';
         };
 
@@ -210,9 +230,18 @@ var req = window.req || (function(doc) {
             };
         };
 		
+		if (argsLen === 3) {
+				console.log(arguments);
+			 // declaring a module req('module', {} || function(){}, []);
+           // if (global.Str(args[0]) && (global.Obj(args[1]) || global.Fun(args[1])) && global.Arr(args[2])) {
+                declare(args[0], args[2], args[1]);
+           // };
+		};
+		
 		return req;
     };
 	
+	// go native 
 	Array.prototype.req = function(callback) {
 		return req(this, callback);
 	};
