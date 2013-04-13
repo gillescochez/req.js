@@ -163,7 +163,6 @@ var req = window.req || (function(doc) {
 					else {
 					
 						(function(name, object, imports) {
-							console.log('importing');
 							req(imports, function() {
 								register(name, object.apply(null, arguments));
 							});
@@ -231,11 +230,10 @@ var req = window.req || (function(doc) {
         };
 		
 		if (argsLen === 3) {
-				console.log(arguments);
-			 // declaring a module req('module', {} || function(){}, []);
-           // if (global.Str(args[0]) && (global.Obj(args[1]) || global.Fun(args[1])) && global.Arr(args[2])) {
+			// declaring a module req('module', {} || function(){}, []);
+			if (global.Str(args[0]) && global.Arr(args[1]) && (global.Obj(args[2]) || global.Fun(args[2]))) {
                 declare(args[0], args[2], args[1]);
-           // };
+			};
 		};
 		
 		return req;
