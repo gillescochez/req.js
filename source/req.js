@@ -51,7 +51,7 @@ var req = window.req || (function(doc) {
                     if (/loaded|complete/.test(script.readyState)) {
                         script.onreadystatechange = null;
                         callback();
-                    };
+                    }
                 };
             }
             else script.onload = callback;
@@ -93,7 +93,7 @@ var req = window.req || (function(doc) {
 							callback.apply(this, args(stack[hash][j].resources));
 							stack[hash][j].callbacks.splice(i, 1);
 							execute(hash);
-						};
+						}
 					}
 					else callback.apply(this, args(stack[hash][j].resources));
 				}, true);
@@ -128,7 +128,7 @@ var req = window.req || (function(doc) {
                         loading[resource] = false;
                         done(resources);
                     });
-                };
+                }
             },true);
         },
         
@@ -167,7 +167,7 @@ var req = window.req || (function(doc) {
 								register(name, object.apply(null, arguments));
 							});
 						})(name, object, imports);
-					};
+					}
 				}
 				else register(name, object);
 				
@@ -194,7 +194,7 @@ var req = window.req || (function(doc) {
                 settings: settings,
                 objects: objects
             };
-        };
+        }
         
         // 1 argument :|
         if (argsLen === 1) {
@@ -203,13 +203,13 @@ var req = window.req || (function(doc) {
             if (global.Str(args[0])) {
                 if (objects[args[0]]) return objects[args[0]];
                 else throw args[0] + ' does not exists!';
-            };
+            }
             
             // set multiple settings in one go req({});
             if (global.Obj(args[0])) {
                 for (name in args[0]) config(name, args[0][name]);
-            };
-        };
+            }
+        }
         
         // 2 arguments :)
         if (argsLen === 2) {
@@ -220,21 +220,21 @@ var req = window.req || (function(doc) {
             // declaring a module req('module', {} || function(){});
             if (global.Str(args[0]) && (global.Obj(args[1]) || global.Fun(args[1]))) {
                 declare(args[0], args[1]);
-            };
+            }
 
             // configuration parameters setter req('path', './modules/'); and getter req('get','path');
             if (global.Str(args[0]) && global.Str(args[1])) {
                 if (args[0] === 'get') return config(args[1]);
                 else config(args[0], args[1]);
-            };
-        };
+            }
+        }
 		
 		if (argsLen === 3) {
 			// declaring a module req('module', {} || function(){}, []);
 			if (global.Str(args[0]) && global.Arr(args[1]) && (global.Obj(args[2]) || global.Fun(args[2]))) {
                 declare(args[0], args[2], args[1]);
-			};
-		};
+			}
+		}
 		
 		return req;
     };
